@@ -12,7 +12,6 @@ const app = express();
 // middleware
 app.use(cors());
 
-console.log(weatherData)
 
 // helper functions
 
@@ -23,7 +22,6 @@ app.get('/weather', (request, response) => {
 
 //Check if lat, lon, and searchQuery are provided in the request
 if (lat && lon && searchQuery) {
-  // Use lat, lon, and query for processing
   response.send(`Latitude: ${lat}, Longitude: ${lon}, Query: ${searchQuery}`);
 } else {
   response.status(400).send('Missing lat, lon and searchQueryparameters');
@@ -31,17 +29,17 @@ if (lat && lon && searchQuery) {
 
 
 // Find the city based on lat, lon, or searchQuery
-  const foundCity = cities.find(city => {
+  const foundCity = weatherData.find(city => {
     return (
       (parseFloat(lat) === weatherData.lat && parseFloat(lon) === city.lon) ||
-      searchQuery.toLowerCase() === city.name.toLowerCase()
+      searchQuery === city.city_name
     );
   });
 
   // If city is found, return city information with forecast, else return an error
   if (foundCity) {
-    const forecasts = foundCity.forecast.map(item => new Forecast(item.date, item.description));
-    return response.json({ city: foundCity.name, forecast: forecasts });
+    const forecasts = foundCity.map(item => new Forecast(item.date, item.description));
+    return response.json({ city: foundCity.city_name, forecast: forecasts });
   } else {
     return response.status(404).json({ error: 'City not found' });
   }
